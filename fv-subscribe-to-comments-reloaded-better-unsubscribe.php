@@ -58,7 +58,7 @@ function FV_STCR_UnsubscribeLink( $array ) {
 function FV_STCR_Unsubscribe( $content ) {
   global $wpdb;
   
-  if( isset($_GET['fvunsub']) && isset($_GET['sre']) ) {
+  if( !isset($_POST['sre']) && isset($_GET['fvunsub']) && isset($_GET['sre']) ) {
     global $FV_STCR_postID;
     
     $fvstcrEmail = $_GET['sre'];
