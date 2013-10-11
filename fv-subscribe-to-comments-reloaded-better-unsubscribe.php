@@ -4,7 +4,7 @@ Plugin Name: Subscribe to Comments Reloaded Better Unsubscribe
 Plugin URI: http://foliovision.com/wordpress/plugins/subscribe-to-comments-reloaded-better-unsubscribe/
 Description: Enhancement for Subscribe to Comments Reloaded - unsubscribe from comment notifications using a single click
 Author: Foliovision
-Version: 0.9
+Version: 0.9.1
 Author URI: http://foliovision.com/
 */
 
@@ -21,7 +21,7 @@ function FV_STCR_getPostID( $_comment_ID = 0 ) {
 }
 
 function FV_STCR_checkEmail( $input ) {
-  if(( strpos($input, "sre=") === false ) || ( strpos($input, "srk=") === false )) {
+  if( strpos( $input, 'Manage your subscriptions' ) === false || strpos($input, "sre=") === false || strpos($input, "srk=") === false ) {
     return false;
   }
   else{
@@ -32,16 +32,17 @@ function FV_STCR_checkEmail( $input ) {
 function FV_STCR_changeEmail( $input ){
   global $FV_STCR_postID;
 
-  $opt = get_option('subscribe_reloaded_manager_page');
-  $permalink = trim(get_option('permalink_structure'));
+	$opt = get_option('subscribe_reloaded_manager_page');
+	$permalink = trim(get_option('permalink_structure'));
+	
+	$add = "";  
+	if( $permalink && $permalink[strlen($permalink)-1] == "/"  ){
+		$add = "/";
+	}
+	
+	$input = preg_replace( '~('.$opt.')(.*sre=.+)(&srk=.*)$~', '$1'.$add.'$2&fvunsub='.$FV_STCR_postID.'$3', $input );
+	$input = str_replace('Manage your subscriptions:', 'Unsubscribe:',$input );
   
-  $add = "";  
-  if( $permalink && $permalink[strlen($permalink)-1] == "/"  ){
-    $add = "/";
-  }
-  
-  $input = preg_replace( '~('.$opt.')(.*sre=.+)(&srk=.*)$~', '$1'.$add.'$2&fvunsub='.$FV_STCR_postID.'$3', $input );
-  $input = str_replace('Manage your subscriptions:', 'Unsubscribe:',$input );
   return $input;
 }
 
@@ -57,7 +58,7 @@ function FV_STCR_UnsubscribeLink( $array ) {
 function FV_STCR_Unsubscribe( $content ) {
   global $wpdb;
   
-  if( isset( $_GET['fvunsub'] ) && isset( $_GET['sre'] )) {
+  if( isset($_GET['fvunsub']) && isset($_GET['sre']) ) {
     global $FV_STCR_postID;
     
     $fvstcrEmail = $_GET['sre'];
@@ -104,4 +105,5 @@ function FV_STCR_ShowNotice( $content ){
 add_action('init', 'FV_STCR_Unsubscribe');
 add_filter('comment_post', 'FV_STCR_getPostID');
 add_filter('wp_mail', 'FV_STCR_UnsubscribeLink');
+
 ?>
