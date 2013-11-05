@@ -95,7 +95,7 @@ function FV_STCR_ShowNotice( $content ){
     $addedString = "<div $divStyle><p $pStyle><strong $strongStyle>You are now unsubscribed from <a href=\"". $FV_STCR_postLink ."\">$FV_STCR_postTitle</a>.</strong></p></div>";
     $content = $addedString.$content;
   }
-  return $content.'<!--woot-->';
+  return $content;
 }
 
 
