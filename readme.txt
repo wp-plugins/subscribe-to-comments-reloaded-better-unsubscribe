@@ -3,7 +3,7 @@ Contributors: FolioVision
 Donate link: http://foliovision.com/donate
 Tags: subscribe, comments, notification, subscription, manage, double check-in, follow, commenting, unsubscribe, quick, better
 Requires at least: 3.6
-Tested up to: 3.6.1
+Tested up to: 3.7.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -51,6 +51,11 @@ Please read the installation steps.
 2. Here's the instant unsubscribe in action
 
 == Changelog ==
+
+= 0.9.2 =
+
+* Bugfix - post ID was sometimes not properly obtained, resulting in no unsubscribe action
+* Bugfix - the subscription is now only suspended, rather than being suspended and unconfirmed at the same time. That makes it easier to re-subscribe.
 
 = 0.9.1 =
 

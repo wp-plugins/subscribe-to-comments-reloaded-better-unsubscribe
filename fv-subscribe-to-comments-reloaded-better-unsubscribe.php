@@ -4,21 +4,10 @@ Plugin Name: Subscribe to Comments Reloaded Better Unsubscribe
 Plugin URI: http://foliovision.com/wordpress/plugins/subscribe-to-comments-reloaded-better-unsubscribe/
 Description: Enhancement for Subscribe to Comments Reloaded - unsubscribe from comment notifications using a single click
 Author: Foliovision
-Version: 0.9.1
+Version: 0.9.2
 Author URI: http://foliovision.com/
 */
 
-$FV_STCR_postID = 0;
-
-function FV_STCR_getPostID( $_comment_ID = 0 ) {
-  global $FV_STCR_postID;
-	global $wpdb;
-  
-	$FV_STCR_postID = $wpdb->get_var( $wpdb->prepare ("
-		SELECT comment_post_ID
-		FROM $wpdb->comments
-		WHERE comment_ID = %d LIMIT 1", $_comment_ID ));
-}
 
 function FV_STCR_checkEmail( $input ) {
   if( strpos( $input, 'Manage your subscriptions' ) === false || strpos($input, "sre=") === false || strpos($input, "srk=") === false ) {
@@ -28,6 +17,7 @@ function FV_STCR_checkEmail( $input ) {
     return true;
   }
 }
+
 
 function FV_STCR_changeEmail( $input ){
   global $FV_STCR_postID;
@@ -40,11 +30,17 @@ function FV_STCR_changeEmail( $input ){
 		$add = "/";
 	}
 	
-	$input = preg_replace( '~('.$opt.')(.*sre=.+)(&srk=.*)$~', '$1'.$add.'$2&fvunsub='.$FV_STCR_postID.'$3', $input );
-	$input = str_replace('Manage your subscriptions:', 'Unsubscribe:',$input );
+	preg_match( '~#comment-(\d+)~', $input, $comment_id );
+	if( isset($comment_id[1]) && intval($comment_id[1]) > 0 ) {
+		global $wpdb;
+		$FV_STCR_postID = $wpdb->get_var( $wpdb->prepare( "SELECT comment_post_ID FROM $wpdb->comments WHERE comment_ID = %d LIMIT 1", $comment_id[1] ) );
+		$input = preg_replace( '~('.$opt.')(.*sre=.+)(&srk=.*)$~', '$1'.$add.'$2&fvunsub='.$FV_STCR_postID.'$3', $input );
+		$input = str_replace('Manage your subscriptions:', 'Unsubscribe:',$input );
+	}
   
   return $input;
 }
+
 
 function FV_STCR_UnsubscribeLink( $array ) {
   $isValidEmail = FV_STCR_checkEmail( $array['message'] );
@@ -55,19 +51,18 @@ function FV_STCR_UnsubscribeLink( $array ) {
   return $array;
 }
 
+
 function FV_STCR_Unsubscribe( $content ) {
   global $wpdb;
   
-  if( !isset($_POST['sre']) && isset($_GET['fvunsub']) && isset($_GET['sre']) ) {
-    global $FV_STCR_postID;
-    
+  if( !isset($_POST['sre']) && isset($_GET['fvunsub']) && isset($_GET['sre']) ) {    
     $fvstcrEmail = $_GET['sre'];
     $fvstcrID = $_GET['fvunsub'];
 
     $meta = get_post_meta($fvstcrID,'_stcr@_'.$fvstcrEmail);
 
     if( strpos($meta[0], "|Y") !== false ) {
-      $unsubValue = str_replace('|Y', '|C', $meta[0]);
+      $unsubValue = str_replace('|Y', '|YC', $meta[0]);
       if( update_post_meta($fvstcrID, '_stcr@_'.$fvstcrEmail, $unsubValue) != false ) {
         //call filter
         add_filter( 'the_content', 'FV_STCR_ShowNotice' );
@@ -76,6 +71,7 @@ function FV_STCR_Unsubscribe( $content ) {
   }
   return $content;
 }
+
 
 function FV_STCR_ShowNotice( $content ){
   global $post;
@@ -99,11 +95,11 @@ function FV_STCR_ShowNotice( $content ){
     $addedString = "<div $divStyle><p $pStyle><strong $strongStyle>You are now unsubscribed from <a href=\"". $FV_STCR_postLink ."\">$FV_STCR_postTitle</a>.</strong></p></div>";
     $content = $addedString.$content;
   }
-  return $content;
+  return $content.'<!--woot-->';
 }
 
+
 add_action('init', 'FV_STCR_Unsubscribe');
-add_filter('comment_post', 'FV_STCR_getPostID');
 add_filter('wp_mail', 'FV_STCR_UnsubscribeLink');
 
 ?>
