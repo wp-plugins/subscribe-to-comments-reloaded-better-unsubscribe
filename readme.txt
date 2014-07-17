@@ -3,7 +3,7 @@ Contributors: FolioVision
 Donate link: http://foliovision.com/donate
 Tags: subscribe, comments, notification, subscription, manage, double check-in, follow, commenting, unsubscribe, quick, better
 Requires at least: 3.6
-Tested up to: 3.7.1
+Tested up to: 3.9.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -51,6 +51,10 @@ Please read the installation steps.
 2. Here's the instant unsubscribe in action
 
 == Changelog ==
+
+= 0.9.4 =
+
+* Bugfix for Subscribe to Comments Reloaded - since this plugin puts up wrong shortlink and canonical link for the management page, Subscribe to Comments Reloaded Better Unsubscribed removes these links from this virtual management page.
 
 = 0.9.3 =
 

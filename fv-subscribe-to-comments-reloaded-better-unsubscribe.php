@@ -4,10 +4,20 @@ Plugin Name: Subscribe to Comments Reloaded Better Unsubscribe
 Plugin URI: http://foliovision.com/wordpress/plugins/subscribe-to-comments-reloaded-better-unsubscribe/
 Description: Enhancement for Subscribe to Comments Reloaded - unsubscribe from comment notifications using a single click
 Author: Foliovision
-Version: 0.9.3
+Version: 0.9.4
 Author URI: http://foliovision.com/
 */
 
+function FV_STCR_removeBrokenCanonical() {
+  global $post;
+  
+  if($post->ID ==='9999999') {        
+    remove_action( 'wp_head', 'wp_shortlink_wp_head');
+    remove_action( 'wp_head', 'rel_canonical' );
+    add_filter('fvseop_canonical_url','__return_false');
+  }
+  
+}
 
 function FV_STCR_checkEmail( $input ) {
   if( strpos( $input, 'Manage your subscriptions' ) === false || strpos($input, "sre=") === false || strpos($input, "srk=") === false ) {
@@ -99,6 +109,7 @@ function FV_STCR_ShowNotice( $content ){
 }
 
 
+add_action('wp_head','FV_STCR_removeBrokenCanonical',-1);
 add_action('init', 'FV_STCR_Unsubscribe');
 add_filter('wp_mail', 'FV_STCR_UnsubscribeLink');
 
