@@ -3,7 +3,7 @@ Contributors: FolioVision
 Donate link: http://foliovision.com/donate
 Tags: subscribe, comments, notification, subscription, manage, double check-in, follow, commenting, unsubscribe, quick, better
 Requires at least: 3.6
-Tested up to: 4.0
+Tested up to: 4.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

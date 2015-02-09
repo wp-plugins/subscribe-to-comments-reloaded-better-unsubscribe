@@ -112,5 +112,16 @@ function FV_STCR_ShowNotice( $content ){
 add_action('wp_head','FV_STCR_removeBrokenCanonical',-1);
 add_action('init', 'FV_STCR_Unsubscribe');
 add_filter('wp_mail', 'FV_STCR_UnsubscribeLink');
+add_filter('plugin_action_links', 'fv_subscribe_to_comments_reloaded_better_unsubscribe_plugin_action_links', 10, 2);
+
+function fv_subscribe_to_comments_reloaded_better_unsubscribe_plugin_action_links($links, $file) {
+  	$plugin_file = basename(__FILE__);
+  	if (basename($file) == $plugin_file) {
+      $settings_link =  'No settings';
+  		array_unshift($links, $settings_link);
+  	}
+  	return $links;
+}
+
 
 ?>
