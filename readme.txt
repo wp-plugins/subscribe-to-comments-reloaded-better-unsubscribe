@@ -52,6 +52,10 @@ Please read the installation steps.
 
 == Changelog ==
 
+= 0.9.5 =
+
+* New cron function which automatically unsubscribes all users(emails) ,which are bounced, invalid , spam or unsubscribed at Sendgrid.com. 
+
 = 0.9.4 =
 
 * Bugfix for Subscribe to Comments Reloaded - since this plugin puts up wrong shortlink and canonical link for the management page, Subscribe to Comments Reloaded Better Unsubscribed removes these links from this virtual management page.
