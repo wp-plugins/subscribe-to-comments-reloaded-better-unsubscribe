@@ -18,6 +18,8 @@ What should be quick and easy is a multi-step process.
 
 This plugin unsubscribes the person right away from the post for which the notification was received and adds a "You are now unsubscribed from {post title}" visual notification about that to the above management page. That is a single click to unsubscribe. But they can still use the subscription management page to adjust other subscriptions.
 
+**Update March 2015**: SendGrid bounce processing added! If you use WP Mail SMTP or Mailer plugins, we detect the SendGrid login and then check for bounces in a WP cron. Bounced emails get unsubscribed from comment notifications.
+
 [Support](http://foliovision.com/support/subscribe-to-comments-reloaded-better-unsubscribe) |
 [Change Log](http://foliovision.com/wordpress/plugins/subscribe-to-comments-reloaded-better-unsubscribe/changelog) |
 [Installation](http://foliovision.com/wordpress/plugins/subscribe-to-comments-reloaded-better-unsubscribe/installation)|
@@ -37,6 +39,7 @@ We recommend that you test the plugin. Here are detailed steps:
 * check that you received your notification
 * check that the "Manage your subscriptions" was changed to "Unsubscribe" and that clicking the link opens the subscription management page with "You are now unsubscribed from {post title}" message at the top. You can see what it should look like on the screenshot on the plugin page.
 * use [our support forums](http://foliovision.com/support/subscribe-to-comments-reloaded-better-unsubscribe) to report any issues
+* if you want to use the **bounce processing**, you have to use **SendGrid** and either [WP Mail SMPT](https://wordpress.org/plugins/wp-mail-smtp/) or [Mailer](https://wordpress.org/plugins/mailer/) to send your Wordpress emails
 
 == Frequently Asked Questions ==
 
@@ -54,7 +57,7 @@ Please read the installation steps.
 
 = 0.9.5 =
 
-* New cron function which automatically unsubscribes all users(emails) ,which are bounced, invalid , spam or unsubscribed at Sendgrid.com. 
+* New cron function which automatically unsubscribes all users (emails) which are bounced, invalid , spam or unsubscribed at Sendgrid.com. Read the installation guide.
 
 = 0.9.4 =
 
