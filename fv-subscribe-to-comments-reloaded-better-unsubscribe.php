@@ -4,7 +4,7 @@ Plugin Name: Subscribe to Comments Reloaded Better Unsubscribe
 Plugin URI: http://foliovision.com/wordpress/plugins/subscribe-to-comments-reloaded-better-unsubscribe/
 Description: Enhancement for Subscribe to Comments Reloaded - unsubscribe from comment notifications using a single click
 Author: Foliovision
-Version: 0.9.5
+Version: 0.9.6
 Author URI: http://foliovision.com/
 */
 
@@ -71,7 +71,7 @@ function FV_STCR_Unsubscribe( $content ) {
 
     $meta = get_post_meta($fvstcrID,'_stcr@_'.$fvstcrEmail);
 
-    if( strpos($meta[0], "|Y") !== false ) {
+    if( strpos($meta[0], "|Y") !== false && strpos($meta[0], "|YC") === false ) {
       $unsubValue = str_replace('|Y', '|YC', $meta[0]);
       if( update_post_meta($fvstcrID, '_stcr@_'.$fvstcrEmail, $unsubValue) != false ) {
         //call filter
@@ -124,39 +124,18 @@ function fv_subscribe_to_comments_reloaded_better_unsubscribe_plugin_action_link
   	return $links;
 }
 
+
+
+
 // cron and it's functions start here
-
-// no needed
-/*
-add_filter('cron_schedules','FV_STCR_cron_schedules');
-
-
-function FV_STCR_cron_schedules($schedules){
-  
-  $schedules['5minutes'] = array(
-    'interval' => 300,
-    'display' => __('Every 5 minutes')
-  );
-  
-  $schedules['60minutes'] = array(
-    'interval' => 3600,
-    'display' => __('Every hour')
-  );
-  
-  return $schedules;
-}
-*/
-
-
 register_deactivation_hook(__FILE__, 'FV_STCR_sharing_deactivation');
-
 
 function FV_STCR_sharing_deactivation(){
   wp_clear_scheduled_hook('FV_STCR_sharing_cron_event');
 }
 
-
 add_action('FV_STCR_sharing_cron_event','FV_STCR_sharing_cron');
+
 
 function FV_STCR_check_sendgrid_options(){
   
@@ -189,13 +168,10 @@ function FV_STCR_check_sendgrid_options(){
 
 
 function FV_STCR_sharing_cron(){
-  
   if(FV_STCR_check_sendgrid_options() != false){
-    
     $options = FV_STCR_check_sendgrid_options();
     $password = $options['password'];
     $email = $options['email'];
-    
     
     $json = @file_get_contents('https://sendgrid.com/api/bounces.get.json?api_user='.$email.'&api_key='.$password.'&type=hard');
     $result = @json_decode($json);
@@ -209,49 +185,47 @@ function FV_STCR_sharing_cron(){
     $json = @file_get_contents('https://sendgrid.com/api/unsubscribes.get.json?api_user='.$email.'&api_key='.$password.'&type=hard');
     $result4 = @json_decode($json);
     
-    if($result != NULL ){
-      
+    if($result != NULL ) {   
       $iCount = 0;
       $all_users = array_merge($result,$result2,$result3,$result4);
       
       global $wpdb;
       
       foreach($all_users as $user){
-	
-	$sql = "SELECT post_id,meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key ='_stcr@_$user->email' ";
-	$results = $wpdb->get_results( $sql);
-	
-	foreach($results as $result){
-	  
-	  if( strpos($result->meta_value, "|Y") !== false && strpos($result->meta_value, "|YC") == false ) {
-	    $iCount++;
-	    $unsubValue = str_replace('|Y', '|YC', $result->meta_value);
-	    update_post_meta($result->post_id,"_stcr@_$user->email",$unsubValue);
-	  }
-	  
-	}
-	
+        $sql = "SELECT post_id,meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key ='_stcr@_$user->email' ";
+        $results = $wpdb->get_results( $sql);
+        
+        foreach($results as $result){        
+          if( strpos($result->meta_value, "|Y") !== false && strpos($result->meta_value, "|YC") == false ) {
+            $iCount++;
+            $unsubValue = str_replace('|Y', '|YC', $result->meta_value);
+            update_post_meta($result->post_id,"_stcr@_$user->email",$unsubValue);
+          }
+        }
+      
       }
       
       if($iCount > 0){
-	update_option( 'stcrbe_last_run', time() );
-	update_option( 'stcrbe_unsubscribed', $iCount );
+        update_option( 'stcrbe_last_run', time() );
+        update_option( 'stcrbe_unsubscribed', $iCount );
       }
-      
-      
+
     }
-    
+  
   }
 }
 
-if (is_admin()){
+
+function FV_STCR_cron_check() {
   if ( !wp_next_scheduled( 'FV_STCR_sharing_cron_event' ) ) {
     wp_schedule_event( time(), 'hourly', 'FV_STCR_sharing_cron_event' );
   }
 }
+add_action( 'admin_init', 'FV_STCR_cron_check' ); 
+
 
 function FV_STCR_smtp_options_notice(){
-  if($_GET['page']=='subscribe-to-comments-reloaded/options/index.php'){
+  if( isset($_GET['page']) && $_GET['page']=='subscribe-to-comments-reloaded/options/index.php' ){
     if(FV_STCR_check_sendgrid_options()){
       echo '<div class="updated"><p> Subscribe to Comments Reloaded Better Unsubscribe found that you are using SendGrid. It will automatically unsubscribe addresses which are reported as bounces.  </p></div>';
     }else{
@@ -259,10 +233,136 @@ function FV_STCR_smtp_options_notice(){
     }
   }
 }
-
 add_action('admin_notices','FV_STCR_smtp_options_notice');
 
 // cron and it's functions end here
 
 
-?>
+function FV_STCR_template() {
+  global $post;
+  if( isset($_GET['sre']) && isset($post->post_content) && stripos($post->post_content, 'subscribe-form-button') != false ) {    
+    ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" <?php if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) language_attributes(); else echo "dir='$text_direction'"; ?>>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title><?php wp_title( '|', true, 'right' ); ?></title>
+    <style type="text/css">
+      html {
+        background: #f1f1f1;
+      }
+      body {
+        background: #fff;
+        color: #444;
+        font-family: "Open Sans", sans-serif;
+        margin: 2em auto;
+        padding: 1em 2em;
+        max-width: 700px;
+        -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.13);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.13);
+      }
+      h1 {
+        border-bottom: 1px solid #dadada;
+        clear: both;
+        color: #666;
+        font: 24px "Open Sans", sans-serif;
+        margin: 30px 0 0 0;
+        padding: 0;
+        padding-bottom: 7px;
+      }
+      #error-page {
+        margin-top: 50px;
+      }
+      #error-page p {
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 25px 0 20px;
+      }
+      #error-page code {
+        font-family: Consolas, Monaco, monospace;
+      }
+      ul li {
+        margin-bottom: 10px;
+        font-size: 14px ;
+      }
+      a {
+        color: #21759B;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #D54E21;
+      }
+      .button {
+        background: #f7f7f7;
+        border: 1px solid #cccccc;
+        color: #555;
+        display: inline-block;
+        text-decoration: none;
+        font-size: 13px;
+        line-height: 26px;
+        height: 28px;
+        margin: 0;
+        padding: 0 10px 1px;
+        cursor: pointer;
+        -webkit-border-radius: 3px;
+        -webkit-appearance: none;
+        border-radius: 3px;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing:    border-box;
+        box-sizing:         border-box;
+  
+        -webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0,0,0,.08);
+        box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0,0,0,.08);
+        vertical-align: top;
+      }
+  
+      .button.button-large {
+        height: 29px;
+        line-height: 28px;
+        padding: 0 12px;
+      }
+  
+      .button:hover,
+      .button:focus {
+        background: #fafafa;
+        border-color: #999;
+        color: #222;
+      }
+  
+      .button:focus  {
+        -webkit-box-shadow: 1px 1px 1px rgba(0,0,0,.2);
+        box-shadow: 1px 1px 1px rgba(0,0,0,.2);
+      }
+  
+      .button:active {
+        background: #eee;
+        border-color: #999;
+        color: #333;
+        -webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
+        box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
+      }
+  
+      <?php if ( 'rtl' == $text_direction ) : ?>
+      body { font-family: Tahoma, Arial; }
+      <?php endif; ?>
+    </style>
+  </head>
+  <body id="error-page">  
+    <div id="primary" class="site-content">
+      <div id="content" role="main">
+        <?php while ( have_posts() ) : the_post(); ?>
+          <?php get_template_part( 'content', 'page' ); ?>
+          <?php comments_template( '', true ); ?>
+        <?php endwhile; // end of the loop. ?>
+        <hr />
+        <p style="text-align: right">Go back to <a href="<?php echo home_url(); ?>"><?php bloginfo(); ?> homepage</a></p>
+      </div><!-- #content -->
+    </div><!-- #primary -->
+  </body>
+</html>  
+    <?php
+    die("<!--fv subscribe to comments reloaded better unsubscribe-->");
+  }
+}
+add_filter( 'template_redirect', 'FV_STCR_template' );

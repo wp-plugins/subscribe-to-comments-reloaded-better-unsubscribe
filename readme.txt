@@ -55,6 +55,10 @@ Please read the installation steps.
 
 == Changelog ==
 
+= 0.9.6 =
+
+* Fix for Google Personally Identifiable Information warnings - Subscribe to Comments Reloaded shows the subscription manager in your theme, which is nice. However the URL contains the user email address and if your theme sidebar has Google ads in it, these ads can see the user email and thus persons identity is revealed. That's by Subscribe to Comments Relaoaded Better Unsubscribe loads a bare bones template for the subscription manager only. This is an important fix until Subscribe to Comments Reloaded gets fixed.
+
 = 0.9.5 =
 
 * New cron function which automatically unsubscribes all users (emails) which are bounced, invalid , spam or unsubscribed at Sendgrid.com. Read the installation guide.
