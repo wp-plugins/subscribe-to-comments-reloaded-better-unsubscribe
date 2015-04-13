@@ -69,9 +69,9 @@ function FV_STCR_Unsubscribe( $content ) {
     $fvstcrEmail = $_GET['sre'];
     $fvstcrID = $_GET['fvunsub'];
 
-    $meta = get_post_meta($fvstcrID,'_stcr@_'.$fvstcrEmail);
+    $meta = get_post_meta($fvstcrID,'_stcr@_'.$fvstcrEmail, true);
 
-    if( strpos($meta[0], "|Y") !== false && strpos($meta[0], "|YC") === false ) {
+    if( $meta && strpos($meta, "|Y") !== false && strpos($meta, "|YC") === false ) {
       $unsubValue = str_replace('|Y', '|YC', $meta[0]);
       if( update_post_meta($fvstcrID, '_stcr@_'.$fvstcrEmail, $unsubValue) != false ) {
         //call filter
@@ -239,8 +239,8 @@ add_action('admin_notices','FV_STCR_smtp_options_notice');
 
 
 function FV_STCR_template() {
-  global $post;
-  if( isset($_GET['sre']) && isset($post->post_content) && stripos($post->post_content, 'subscribe-form-button') != false ) {    
+  global $post;  
+  if( isset($_GET['sre']) && isset($post->ID) && $post->ID == 9999999 ) {    
     ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" <?php if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) language_attributes(); else echo "dir='$text_direction'"; ?>>
