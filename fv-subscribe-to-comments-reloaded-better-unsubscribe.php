@@ -239,7 +239,7 @@ add_action('admin_notices','FV_STCR_smtp_options_notice');
 
 
 function FV_STCR_template() {
-  global $post;  
+  global $post;
   if( isset($_GET['sre']) && isset($post->ID) && $post->ID == 9999999 ) {    
     ?>
 <!DOCTYPE html>
@@ -352,8 +352,8 @@ function FV_STCR_template() {
     <div id="primary" class="site-content">
       <div id="content" role="main">
         <?php while ( have_posts() ) : the_post(); ?>
-          <?php get_template_part( 'content', 'page' ); ?>
-          <?php comments_template( '', true ); ?>
+          <h1><?php the_title(); ?></h1>
+          <?php echo get_the_content(); ?>
         <?php endwhile; // end of the loop. ?>
         <hr />
         <p style="text-align: right">Go back to <a href="<?php echo home_url(); ?>"><?php bloginfo(); ?> homepage</a></p>
