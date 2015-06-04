@@ -4,7 +4,7 @@ Plugin Name: Subscribe to Comments Reloaded Better Unsubscribe
 Plugin URI: http://foliovision.com/wordpress/plugins/subscribe-to-comments-reloaded-better-unsubscribe/
 Description: Enhancement for Subscribe to Comments Reloaded - unsubscribe from comment notifications using a single click
 Author: Foliovision
-Version: 0.9.6
+Version: 0.9.7
 Author URI: http://foliovision.com/
 */
 
@@ -69,10 +69,15 @@ function FV_STCR_Unsubscribe( $content ) {
     $fvstcrEmail = $_GET['sre'];
     $fvstcrID = $_GET['fvunsub'];
 
+    global $wp_subscribe_reloaded;
+    if( isset($wp_subscribe_reloaded) && method_exists($wp_subscribe_reloaded,'get_subscriber_email_by_key') && stripos( urldecode($fvstcrEmail),'@') === false ) {
+      $fvstcrEmail = $wp_subscribe_reloaded->get_subscriber_email_by_key($fvstcrEmail);
+    }
+
     $meta = get_post_meta($fvstcrID,'_stcr@_'.$fvstcrEmail, true);
 
     if( $meta && strpos($meta, "|Y") !== false && strpos($meta, "|YC") === false ) {
-      $unsubValue = str_replace('|Y', '|YC', $meta[0]);
+      $unsubValue = str_replace('|Y', '|YC', $meta);
       if( update_post_meta($fvstcrID, '_stcr@_'.$fvstcrEmail, $unsubValue) != false ) {
         //call filter
         add_filter( 'the_content', 'FV_STCR_ShowNotice' );
@@ -353,7 +358,7 @@ function FV_STCR_template() {
       <div id="content" role="main">
         <?php while ( have_posts() ) : the_post(); ?>
           <h1><?php the_title(); ?></h1>
-          <?php echo get_the_content(); ?>
+          <?php the_content(); ?>
         <?php endwhile; // end of the loop. ?>
         <hr />
         <p style="text-align: right">Go back to <a href="<?php echo home_url(); ?>"><?php bloginfo(); ?> homepage</a></p>

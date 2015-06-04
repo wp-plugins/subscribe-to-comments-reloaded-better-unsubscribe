@@ -55,6 +55,10 @@ Please read the installation steps.
 
 == Changelog ==
 
+= 0.9.7 =
+
+* Fix for Subscribe to Comments Reloaded 150422 - the email address is no longer in URL (thank god!), so we must decode the special parameter.
+
 = 0.9.6 =
 
 * Fix for Google Personally Identifiable Information warnings - Subscribe to Comments Reloaded shows the subscription manager in your theme, which is nice. However the URL contains the user email address and if your theme sidebar has Google ads in it, these ads can see the user email and thus persons identity is revealed. That's why Subscribe to Comments Relaoaded Better Unsubscribe loads a bare bones template for the subscription manager only. This is an important fix until Subscribe to Comments Reloaded gets fixed.
